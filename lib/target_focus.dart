@@ -15,7 +15,7 @@ class TargetFocus {
     this.keyTarget,
     this.targetPosition,
     this.contents,
-    this.shape,
+    this.shape = ShapeLightFocus.RRect,
   }) : assert(keyTarget != null || targetPosition != null);
 
   @override

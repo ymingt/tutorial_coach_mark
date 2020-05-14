@@ -157,7 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ))
       ],
-      shape: ShapeLightFocus.RRect,
     ));
     targets.add(TargetFocus(
       identify: "Target 2",
@@ -212,7 +211,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ))
       ],
-      shape: ShapeLightFocus.RRect,
     ));
     targets.add(TargetFocus(
       identify: "Target 3",
@@ -243,7 +241,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ))
       ],
-      shape: ShapeLightFocus.RRect,
     ));
     targets.add(TargetFocus(
       identify: "Target 4",
@@ -279,7 +276,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ))
       ],
-      shape: ShapeLightFocus.Circle,
     ));
     targets.add(TargetFocus(
       identify: "Target 5",
@@ -332,7 +328,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ))
       ],
-      shape: ShapeLightFocus.Circle,
     ));
   }
 
