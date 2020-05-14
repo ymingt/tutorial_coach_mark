@@ -17,29 +17,29 @@ class TutorialCoachMarkWidget extends StatefulWidget {
   final Function() clickSkip;
   final AlignmentGeometry alignSkip;
   final String textSkip;
-  final TextStyle textStyleSkip;
+  final TextStyle textStyle;
   final bool hideSkip;
-  final Widget textSkipWidget;
-  final Widget textPreviousWidget;
-  final Widget textNextWidget;
+  final String textPrevious;
+  final String textNext;
+  final String textDone;
 
-  const TutorialCoachMarkWidget(
-      {Key key,
-      this.targets,
-      this.finish,
-      this.paddingFocus = 10,
-      this.clickTarget,
-      this.alignSkip = Alignment.bottomRight,
-      this.textSkip = "SKIP",
-      this.clickSkip,
-      this.textSkipWidget,
-      this.textPreviousWidget,
-      this.textNextWidget,
-      this.colorShadow = Colors.black,
-      this.opacityShadow = 0.8,
-      this.textStyleSkip = const TextStyle(color: Colors.white),
-      this.hideSkip})
-      : super(key: key);
+  const TutorialCoachMarkWidget({
+    Key key,
+    this.targets,
+    this.finish,
+    this.paddingFocus = 10,
+    this.clickTarget,
+    this.alignSkip = Alignment.bottomRight,
+    this.textSkip = "SKIP",
+    this.clickSkip,
+    this.textPrevious,
+    this.textNext,
+    this.textDone,
+    this.colorShadow = Colors.black,
+    this.opacityShadow = 0.8,
+    this.textStyle = const TextStyle(color: Colors.white),
+    this.hideSkip,
+  }) : super(key: key);
 
   @override
   _TutorialCoachMarkWidgetState createState() =>
@@ -53,6 +53,8 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   StreamController _controllerTapNext = StreamController<void>.broadcast();
 
   TargetFocus currentTarget;
+  bool _isFirst = false;
+  bool _isLast = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +71,13 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
             clickTarget: (target) {
               if (widget.clickTarget != null) widget.clickTarget(target);
             },
-            focus: (target) {
+            focus: (target, isFirst, isLast) {
               currentTarget = target;
               _controllerFade.sink.add(1.0);
+              setState(() {
+                _isFirst = isFirst;
+                _isLast = isLast;
+              });
             },
             removeFocus: () {
               _controllerFade.sink.add(0.0);
@@ -82,8 +88,10 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
           ),
           _buildContents(),
           _buildSkip(),
-          widget.textPreviousWidget != null ? _buildPrevious() : Container(),
-          widget.textNextWidget != null ? _buildNext() : Container(),
+          widget.textPrevious != null && !_isFirst
+              ? _buildPrevious()
+              : Container(),
+          widget.textNext != null ? _buildNext() : Container(),
         ],
       ),
     );
@@ -220,11 +228,10 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: widget.textSkipWidget ??
-                      Text(
-                        widget.textSkip,
-                        style: widget.textStyleSkip,
-                      ),
+                  child: Text(
+                    widget.textSkip,
+                    style: widget.textStyle,
+                  ),
                 ),
               ),
             );
@@ -251,7 +258,10 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: widget.textPreviousWidget,
+                  child: Text(
+                    widget.textPrevious,
+                    style: widget.textStyle,
+                  ),
                 ),
               ),
             );
@@ -278,7 +288,12 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: widget.textNextWidget,
+                  child: Text(
+                    _isLast && widget.textDone != null
+                        ? widget.textDone
+                        : widget.textNext,
+                    style: widget.textStyle,
+                  ),
                 ),
               ),
             );

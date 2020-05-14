@@ -342,17 +342,11 @@ class _MyHomePageState extends State<MyHomePage> {
       targets: targets,
       colorShadow: Colors.black,
       textSkip: "SKIP",
-      textNextWidget: Text('NEXT', style: TextStyle(color: Colors.white)),
-      textPreviousWidget:
-          Text('PREVIOUS', style: TextStyle(color: Colors.white)),
-
-      // paddingFocus: 10,
-      // opacityShadow: 0.8,
+      textNext: "NEXT",
+      textPrevious: "PREVIOUS",
+      textDone: "DONE",
       finish: () {
         print("finish");
-      },
-      clickTarget: (target) {
-        print(target);
       },
       clickSkip: () {
         print("skip");
