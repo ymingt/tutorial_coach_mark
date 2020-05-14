@@ -19,6 +19,9 @@ class TutorialCoachMarkWidget extends StatefulWidget {
   final String textSkip;
   final TextStyle textStyleSkip;
   final bool hideSkip;
+  final Widget textSkipWidget;
+  final Widget textPreviousWidget;
+  final Widget textNextWidget;
 
   const TutorialCoachMarkWidget(
       {Key key,
@@ -29,6 +32,9 @@ class TutorialCoachMarkWidget extends StatefulWidget {
       this.alignSkip = Alignment.bottomRight,
       this.textSkip = "SKIP",
       this.clickSkip,
+      this.textSkipWidget,
+      this.textPreviousWidget,
+      this.textNextWidget,
       this.colorShadow = Colors.black,
       this.opacityShadow = 0.8,
       this.textStyleSkip = const TextStyle(color: Colors.white),
@@ -43,6 +49,8 @@ class TutorialCoachMarkWidget extends StatefulWidget {
 class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   StreamController _controllerFade = StreamController<double>.broadcast();
   StreamController _controllerTapChild = StreamController<void>.broadcast();
+  StreamController _controllerTapPrevious = StreamController<void>.broadcast();
+  StreamController _controllerTapNext = StreamController<void>.broadcast();
 
   TargetFocus currentTarget;
 
@@ -69,9 +77,13 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
               _controllerFade.sink.add(0.0);
             },
             streamTap: _controllerTapChild.stream,
+            streamPreviousTap: _controllerTapPrevious.stream,
+            streamNextTap: _controllerTapNext.stream,
           ),
           _buildContents(),
-          _buildSkip()
+          _buildSkip(),
+          widget.textPreviousWidget != null ? _buildPrevious() : Container(),
+          widget.textNextWidget != null ? _buildNext() : Container(),
         ],
       ),
     );
@@ -208,10 +220,65 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    widget.textSkip,
-                    style: widget.textStyleSkip,
-                  ),
+                  child: widget.textSkipWidget ??
+                      Text(
+                        widget.textSkip,
+                        style: widget.textStyleSkip,
+                      ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  _buildPrevious() {
+    return Align(
+      alignment: Alignment.topLeft,
+      child: SafeArea(
+        child: StreamBuilder(
+          stream: _controllerFade.stream,
+          initialData: 0.0,
+          builder: (_, snapshot) {
+            return AnimatedOpacity(
+              opacity: snapshot.data,
+              duration: Duration(milliseconds: 300),
+              child: InkWell(
+                onTap: () {
+                  _controllerTapPrevious.add(null);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: widget.textPreviousWidget,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  _buildNext() {
+    return Align(
+      alignment: Alignment.topRight,
+      child: SafeArea(
+        child: StreamBuilder(
+          stream: _controllerFade.stream,
+          initialData: 0.0,
+          builder: (_, snapshot) {
+            return AnimatedOpacity(
+              opacity: snapshot.data,
+              duration: Duration(milliseconds: 300),
+              child: InkWell(
+                onTap: () {
+                  _controllerTapNext.add(null);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: widget.textNextWidget,
                 ),
               ),
             );
@@ -224,6 +291,9 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   @override
   void dispose() {
     _controllerFade.close();
+    _controllerTapChild.close();
+    _controllerTapPrevious.close();
+    _controllerTapNext.close();
     super.dispose();
   }
 }

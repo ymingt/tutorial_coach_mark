@@ -15,6 +15,9 @@ class TutorialCoachMark {
   final Function() clickSkip;
   final AlignmentGeometry alignSkip;
   final String textSkip;
+  final Widget textSkipWidget;
+  final Widget textPreviousWidget;
+  final Widget textNextWidget;
   final TextStyle textStyleSkip;
   final bool hideSkip;
   final Color colorShadow;
@@ -32,6 +35,9 @@ class TutorialCoachMark {
     this.clickSkip,
     this.alignSkip = Alignment.bottomRight,
     this.textSkip = "SKIP",
+    this.textSkipWidget,
+    this.textPreviousWidget,
+    this.textNextWidget,
     this.textStyleSkip = const TextStyle(color: Colors.white),
     this.hideSkip = false,
     this.opacityShadow = 0.8,
@@ -47,6 +53,9 @@ class TutorialCoachMark {
         alignSkip: alignSkip,
         textSkip: textSkip,
         textStyleSkip: textStyleSkip,
+        textSkipWidget: textSkipWidget,
+        textNextWidget: textNextWidget,
+        textPreviousWidget: textPreviousWidget,
         hideSkip: hideSkip,
         colorShadow: colorShadow,
         opacityShadow: opacityShadow,

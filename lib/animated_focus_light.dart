@@ -20,6 +20,8 @@ class AnimatedFocusLight extends StatefulWidget {
   final Color colorShadow;
   final double opacityShadow;
   final Stream<void> streamTap;
+  final Stream<void> streamPreviousTap;
+  final Stream<void> streamNextTap;
 
   const AnimatedFocusLight({
     Key key,
@@ -32,6 +34,8 @@ class AnimatedFocusLight extends StatefulWidget {
     this.colorShadow = Colors.black,
     this.opacityShadow = 0.8,
     this.streamTap,
+    this.streamPreviousTap,
+    this.streamNextTap,
   }) : super(key: key);
 
   @override
@@ -52,6 +56,7 @@ class _AnimatedFocusLightState extends State<AnimatedFocusLight>
   bool finishFocus = false;
   bool initReverse = false;
   double progressAnimated = 0;
+  bool isGoNext = true;
 
   @override
   void initState() {
@@ -72,7 +77,11 @@ class _AnimatedFocusLightState extends State<AnimatedFocusLight>
             finishFocus = false;
             initReverse = false;
           });
-          _nextFocus();
+          if (isGoNext) {
+            _nextFocus();
+          } else {
+            _previousFocus();
+          }
         }
 
         if (status == AnimationStatus.reverse) {
@@ -106,6 +115,15 @@ class _AnimatedFocusLightState extends State<AnimatedFocusLight>
 
     WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
     widget.streamTap.listen((_) {
+      isGoNext = true;
+      _tapHandler();
+    });
+    widget.streamPreviousTap.listen((_) {
+      isGoNext = false;
+      _tapHandler();
+    });
+    widget.streamNextTap.listen((_) {
+      isGoNext = true;
       _tapHandler();
     });
     super.initState();
@@ -180,6 +198,20 @@ class _AnimatedFocusLightState extends State<AnimatedFocusLight>
 
     currentFocus++;
 
+    forwardAnimation();
+  }
+
+  void _previousFocus() {
+    if (currentFocus <= 0) {
+      this._finish();
+      return;
+    }
+    currentFocus--;
+
+    forwardAnimation();
+  }
+
+  void forwardAnimation() {
     var targetPosition = getTargetCurrent(widget.targets[currentFocus]);
     if (targetPosition == null) {
       this._finish();
