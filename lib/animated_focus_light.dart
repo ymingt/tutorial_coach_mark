@@ -68,11 +68,8 @@ class _AnimatedFocusLightState extends State<AnimatedFocusLight>
           setState(() {
             finishFocus = true;
           });
-          print('widget.targets.length' + widget.targets.length.toString());
-          print('currentFocus' + currentFocus.toString());
-
-          widget?.focus(widget.targets[currentFocus], currentFocus == 0,
-              currentFocus == widget.targets.length - 1);
+          widget?.focus(widget.targets[currentFocus], currentFocus == -1,
+              currentFocus >= widget.targets.length - 1);
 
           _controllerPulse.forward();
         }

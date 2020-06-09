@@ -53,7 +53,7 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   StreamController _controllerTapNext = StreamController<void>.broadcast();
 
   TargetFocus currentTarget;
-  bool _isFirst = false;
+  bool _isFirst = true;
   bool _isLast = false;
 
   @override
