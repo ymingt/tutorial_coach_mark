@@ -13,7 +13,6 @@ class TutorialCoachMark {
   final Function() finish;
   final double paddingFocus;
   final Function() clickSkip;
-  final AlignmentGeometry alignSkip;
   final String textSkip;
   final String textPrevious;
   final String textNext;
@@ -33,7 +32,6 @@ class TutorialCoachMark {
     this.finish,
     this.paddingFocus = 10,
     this.clickSkip,
-    this.alignSkip = Alignment.bottomRight,
     this.textSkip = "SKIP",
     this.textPrevious,
     this.textNext,
@@ -50,7 +48,6 @@ class TutorialCoachMark {
         clickTarget: clickTarget,
         paddingFocus: paddingFocus,
         clickSkip: clickSkip,
-        alignSkip: alignSkip,
         textSkip: textSkip,
         textStyle: textStyle,
         textNext: textNext,

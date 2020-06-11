@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:rxdart/rxdart.dart';
+
 import 'package:flutter/material.dart';
 import 'package:tutorial_coach_mark/animated_focus_light.dart';
 import 'package:tutorial_coach_mark/content_target.dart';
@@ -15,7 +17,6 @@ class TutorialCoachMarkWidget extends StatefulWidget {
   final double opacityShadow;
   final double paddingFocus;
   final Function() clickSkip;
-  final AlignmentGeometry alignSkip;
   final String textSkip;
   final TextStyle textStyle;
   final bool hideSkip;
@@ -29,7 +30,6 @@ class TutorialCoachMarkWidget extends StatefulWidget {
     this.finish,
     this.paddingFocus = 10,
     this.clickTarget,
-    this.alignSkip = Alignment.bottomRight,
     this.textSkip = "SKIP",
     this.clickSkip,
     this.textPrevious,
@@ -51,6 +51,12 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   StreamController _controllerTapChild = StreamController<void>.broadcast();
   StreamController _controllerTapPrevious = StreamController<void>.broadcast();
   StreamController _controllerTapNext = StreamController<void>.broadcast();
+  @required
+  final alignSkip = BehaviorSubject<AlignmentGeometry>();
+  @required
+  final alignPrevious = BehaviorSubject<AlignmentGeometry>();
+  @required
+  final alignNext = BehaviorSubject<AlignmentGeometry>();
 
   TargetFocus currentTarget;
   bool _isFirst = true;
@@ -74,6 +80,19 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
             focus: (target, isFirst, isLast) {
               currentTarget = target;
               _controllerFade.sink.add(1.0);
+              if (currentTarget.contents.first.align == AlignContent.top) {
+                alignNext.add(Alignment.centerRight);
+                alignPrevious.add(Alignment.topLeft);
+                alignSkip.add(Alignment.centerLeft);
+              } else if (currentTarget.contents.first.alignPreviousCenter) {
+                alignNext.add(Alignment.bottomRight);
+                alignPrevious.add(Alignment.centerLeft);
+                alignSkip.add(Alignment.bottomLeft);
+              } else {
+                alignNext.add(Alignment.bottomRight);
+                alignPrevious.add(Alignment.topLeft);
+                alignSkip.add(Alignment.bottomLeft);
+              }
               setState(() {
                 _isFirst = isFirst;
                 _isLast = isLast;
@@ -209,97 +228,124 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
     if (widget.hideSkip) {
       return Container();
     }
-    return Align(
-      alignment: widget.alignSkip,
-      child: SafeArea(
-        child: StreamBuilder(
-          stream: _controllerFade.stream,
-          initialData: 0.0,
-          builder: (_, snapshot) {
-            return AnimatedOpacity(
-              opacity: snapshot.data,
-              duration: Duration(milliseconds: 300),
-              child: InkWell(
-                onTap: () {
-                  widget.finish();
-                  if (widget.clickSkip != null) {
-                    widget.clickSkip();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    widget.textSkip,
-                    style: widget.textStyle,
+    return StreamBuilder<AlignmentGeometry>(
+      stream: alignSkip,
+      builder: (context, snapshot) {
+        return Align(
+          alignment: snapshot.data ?? Alignment.bottomLeft,
+          child: SafeArea(
+            child: StreamBuilder(
+              stream: _controllerFade.stream,
+              initialData: 0.0,
+              builder: (_, snapshot) {
+                return AnimatedOpacity(
+                  opacity: snapshot.data,
+                  duration: Duration(milliseconds: 300),
+                  child: BorderedContainer(
+                    margin: EdgeInsets.only(left: 16.0),
+                    child: InkWell(
+                      onTap: () {
+                        widget.finish();
+                        if (widget.clickSkip != null) {
+                          widget.clickSkip();
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          widget.textSkip,
+                          style: widget.textStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   _buildPrevious() {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: SafeArea(
-        child: StreamBuilder(
-          stream: _controllerFade.stream,
-          initialData: 0.0,
-          builder: (_, snapshot) {
-            return AnimatedOpacity(
-              opacity: snapshot.data,
-              duration: Duration(milliseconds: 300),
-              child: InkWell(
-                onTap: () {
-                  _controllerTapPrevious.add(null);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    widget.textPrevious,
-                    style: widget.textStyle,
+    return StreamBuilder<AlignmentGeometry>(
+      stream: alignPrevious,
+      builder: (context, snapshot) {
+        return Align(
+          alignment: snapshot.data ?? Alignment.topLeft,
+          child: SafeArea(
+            child: StreamBuilder(
+              stream: _controllerFade.stream,
+              initialData: 0.0,
+              builder: (_, snapshot) {
+                return AnimatedOpacity(
+                  opacity: snapshot.data,
+                  duration: Duration(milliseconds: 300),
+                  child: BorderedContainer(
+                    margin: EdgeInsets.only(left: 16.0),
+                    child: InkWell(
+                      onTap: () {
+                        _controllerTapPrevious.add(null);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          widget.textPrevious,
+                          style: widget.textStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
   _buildNext() {
-    return Align(
-      alignment: Alignment.topRight,
-      child: SafeArea(
-        child: StreamBuilder(
-          stream: _controllerFade.stream,
-          initialData: 0.0,
-          builder: (_, snapshot) {
-            return AnimatedOpacity(
-              opacity: snapshot.data,
-              duration: Duration(milliseconds: 300),
-              child: InkWell(
-                onTap: () {
-                  _controllerTapNext.add(null);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    _isLast && widget.textDone != null
-                        ? widget.textDone
-                        : widget.textNext,
-                    style: widget.textStyle,
+    return StreamBuilder<AlignmentGeometry>(
+      stream: alignNext,
+      builder: (context, snapshot) {
+        return Align(
+          alignment: snapshot.data ?? Alignment.bottomRight,
+          child: SafeArea(
+            child: StreamBuilder(
+              stream: _controllerFade.stream,
+              initialData: 0.0,
+              builder: (_, snapshot) {
+                return AnimatedOpacity(
+                  opacity: snapshot.data,
+                  duration: Duration(milliseconds: 300),
+                  child: BorderedContainer(
+                    margin: EdgeInsets.only(right: 16.0),
+                    child: InkWell(
+                      onTap: () {
+                        _controllerTapNext.add(null);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          _isLast && widget.textDone != null
+                              ? widget.textDone
+                              : widget.textNext,
+                          style: widget.textStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -310,5 +356,37 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
     _controllerTapPrevious.close();
     _controllerTapNext.close();
     super.dispose();
+  }
+}
+
+class BorderedContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry margin;
+
+  BorderedContainer({
+    this.child,
+    this.margin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        minWidth: 88.0,
+      ),
+      margin: margin,
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: Colors.transparent,
+        border: Border.all(
+          width: 1.0,
+          color: Colors.white,
+        ),
+        borderRadius: BorderRadius.all(
+          Radius.circular(6.0),
+        ),
+      ),
+      child: child,
+    );
   }
 }
