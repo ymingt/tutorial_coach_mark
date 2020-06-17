@@ -16,6 +16,7 @@ TargetPosition getTargetCurrent(TargetFocus target) {
 
     try {
       final RenderObject renderObject = key.currentContext.findRenderObject();
+      if (renderObject == null) return null;
       final RenderBox renderBoxRed = renderObject is RenderBox
           ? renderObject
           : _getChildRenderObject(renderObject);
