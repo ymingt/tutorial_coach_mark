@@ -83,15 +83,15 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
               if (currentTarget.contents.first.align == AlignContent.top) {
                 alignNext.add(Alignment.centerRight);
                 alignPrevious.add(Alignment.topLeft);
-                alignSkip.add(Alignment.centerLeft);
+                alignSkip.add(Alignment.topRight);
               } else if (currentTarget.contents.first.alignPreviousCenter) {
                 alignNext.add(Alignment.bottomRight);
                 alignPrevious.add(Alignment.centerLeft);
-                alignSkip.add(Alignment.bottomLeft);
+                alignSkip.add(Alignment.centerRight);
               } else {
                 alignNext.add(Alignment.bottomRight);
                 alignPrevious.add(Alignment.topLeft);
-                alignSkip.add(Alignment.bottomLeft);
+                alignSkip.add(Alignment.topRight);
               }
               setState(() {
                 _isFirst = isFirst;
@@ -107,9 +107,7 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
           ),
           _buildContents(),
           _buildSkip(),
-          widget.textPrevious != null && !_isFirst
-              ? _buildPrevious()
-              : Container(),
+          _buildPrevious(),
           widget.textNext != null ? _buildNext() : Container(),
         ],
       ),
@@ -232,7 +230,7 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
       stream: alignSkip,
       builder: (context, snapshot) {
         return Align(
-          alignment: snapshot.data ?? Alignment.bottomLeft,
+          alignment: snapshot.data ?? Alignment.topRight,
           child: SafeArea(
             child: StreamBuilder(
               stream: _controllerFade.stream,
@@ -241,22 +239,19 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                 return AnimatedOpacity(
                   opacity: snapshot.data,
                   duration: Duration(milliseconds: 300),
-                  child: BorderedContainer(
-                    margin: EdgeInsets.only(left: 16.0),
-                    child: InkWell(
-                      onTap: () {
-                        widget.finish();
-                        if (widget.clickSkip != null) {
-                          widget.clickSkip();
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          widget.textSkip,
-                          style: widget.textStyle,
-                          textAlign: TextAlign.center,
-                        ),
+                  child: InkWell(
+                    onTap: () {
+                      widget.finish();
+                      if (widget.clickSkip != null) {
+                        widget.clickSkip();
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        widget.textSkip,
+                        style: widget.textStyle,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),
@@ -270,21 +265,20 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
   }
 
   _buildPrevious() {
-    return StreamBuilder<AlignmentGeometry>(
-      stream: alignPrevious,
-      builder: (context, snapshot) {
-        return Align(
-          alignment: snapshot.data ?? Alignment.topLeft,
-          child: SafeArea(
-            child: StreamBuilder(
-              stream: _controllerFade.stream,
-              initialData: 0.0,
-              builder: (_, snapshot) {
-                return AnimatedOpacity(
-                  opacity: snapshot.data,
-                  duration: Duration(milliseconds: 300),
-                  child: BorderedContainer(
-                    margin: EdgeInsets.only(left: 16.0),
+    if (widget.textPrevious != null && !_isFirst) {
+      return StreamBuilder<AlignmentGeometry>(
+        stream: alignPrevious,
+        builder: (context, snapshot) {
+          return Align(
+            alignment: snapshot.data ?? Alignment.topLeft,
+            child: SafeArea(
+              child: StreamBuilder(
+                stream: _controllerFade.stream,
+                initialData: 0.0,
+                builder: (_, snapshot) {
+                  return AnimatedOpacity(
+                    opacity: snapshot.data,
+                    duration: Duration(milliseconds: 300),
                     child: InkWell(
                       onTap: () {
                         _controllerTapPrevious.add(null);
@@ -298,14 +292,15 @@ class _TutorialCoachMarkWidgetState extends State<TutorialCoachMarkWidget> {
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
+    }
+    return Container();
   }
 
   _buildNext() {
